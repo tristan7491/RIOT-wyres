@@ -95,14 +95,14 @@ int main(void)
 		sen15901_params_t params = { 
 		  .adc = ADC_LINE(0), 
 		  .res = ADC_RES_12BIT, 
-		  .sensor0_pin = GPIO_PIN(PORT_B, 14), 
-		  .sensor0_mode = GPIO_IN, 
-		  .sensor1_pin = EXTERNAL_GPIO_PIN, 
-		  .sensor1_mode = GPIO_IN_PD, 
-		  .sensor1_flank = GPIO_RISING, 
-		  .sensor2_pin = BTN1_PIN, 
-		  .sensor2_mode = GPIO_IN_PD, 
-		  .sensor2_flank = GPIO_RISING
+		  .girouette_pin = GPIO_PIN(PORT_B, 14), 
+		  .girouette_mode = GPIO_IN, 
+		  .anemometre_pin = EXTERNAL_GPIO_PIN, 
+		  .anemometre_mode = GPIO_IN_PD, 
+		  .anemometre_flank = GPIO_RISING, 
+		  .pluviometre_pin = BTN1_PIN, 
+		  .pluviometre_mode = GPIO_IN_PD, 
+		  .pluviometre_flank = GPIO_RISING
 		};
 
 		if (sen15901_init(&dev, &params) == SEN15901_OK){
@@ -110,39 +110,33 @@ int main(void)
 			
 			int res;
 			uint16_t orientation;
-			uint16_t ticks_vent;
 			uint16_t wind_speed;
-			uint16_t ticks_water;
 			uint16_t water_level;
 			while (1){	
 				xtimer_sleep(duration);
 				
 				/**** Wind direction ****/
-				res = sen15901_get_wind_direction(&dev, &orientation);
+				res = sen15901_get_girouette(&dev, &orientation);
 				if (res != SEN15901_OK){
-					printf("Error %d for wind direction\n", res);
+					printf("Error %d when fetching girouette data\n", res);
 				}else{
 					printf("Direction : %d\n", orientation);
 				}
 				
 				/**** Wind speed ****/
-				res = sen15901_get_wind_ticks(&dev, &ticks_vent);
+				res = sen15901_get_anemometre(&dev, &wind_speed);
 				if (res != SEN15901_OK){
-					printf("Error %d when fetching wind ticks\n", res);
-					wind_speed = 0;
+					printf("Error %d when fetching anemometre data\n", res);
 				}else{
-					wind_speed = ticks_vent*2.4/duration;
-					printf("Vitesse du vent : %d km/h\n", (int) (wind_speed));
+					printf("Vitesse du vent : %d km/h\n", wind_speed);
 				}
 				
 				/**** Rain ****/
-				res = sen15901_get_water_ticks(&dev, &ticks_water);
+				res = sen15901_get_pluviometre(&dev, &water_level);
 				if (res != SEN15901_OK){
-					printf("Error %d when fetching water ticks\n", res);
-					water_level = 0;
+					printf("Error %d when fetching pluviometre data\n", res);
 				}else{
-					water_level = ticks_water*0.2794;
-					printf("Précipitation : %d mm\n", (int) (water_level));
+					printf("Précipitation : %d mm\n", water_level);
 				}
 				
 				/**** Build payload ****/

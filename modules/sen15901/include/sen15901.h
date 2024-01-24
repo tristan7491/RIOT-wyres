@@ -26,6 +26,9 @@ extern "C" {
 #include "periph/adc.h"
 #include "periph/gpio.h"
 
+#define GIROUETTE 0
+#define ANEMOMETRE 1
+#define PLUVIOMETRE 2
 
 /**
  * @brief   SEN15901 driver parameters
@@ -33,19 +36,18 @@ extern "C" {
 typedef struct SEN15901_PARAMS {
 
 /* ADC - GPIO parameters, used for wind vane */
-    adc_t adc;                  /* adc line */
+    adc_t adc;                  	/* adc line */
     adc_res_t res; 			/* adc resolution */
-    gpio_t sensor0_pin;     	  /* GPIO_PIN  */
-    gpio_mode_t sensor0_mode;   /*  GPIO_MODE setting  */
-/* GPIO parameters, used for anemometer */
-    gpio_t sensor1_pin;           /*  GPIO_PIN  */
-    gpio_mode_t sensor1_mode;       /*  GPIO_MODE setting  */
-    gpio_flank_t sensor1_flank;       /*  Flank */
+    gpio_t girouette_pin;     	  	/* GPIO_PIN  */
+    gpio_mode_t girouette_mode;   	/*  GPIO_MODE setting  */
+/* GPIO parameters, used for anemometre */
+    gpio_t anemometre_pin;           	/*  GPIO_PIN  */
+    gpio_mode_t anemometre_mode;       	/*  GPIO_MODE setting  */
+    gpio_flank_t anemometre_flank;      /*  Flank */
 /* GPIO parameters, used for rain meter */
-    gpio_t sensor2_pin;			 /*  GPIO_PIN  */
-    gpio_mode_t sensor2_mode;       /*  GPIO_MODE setting */
-    gpio_flank_t sensor2_flank;       /*  GPIO_FLANK setting */
-    
+    gpio_t pluviometre_pin;		/*  GPIO_PIN  */
+    gpio_mode_t pluviometre_mode;       /*  GPIO_MODE setting */
+    gpio_flank_t pluviometre_flank;	/*  GPIO_FLANK setting */
 
 } sen15901_params_t;
 
@@ -88,39 +90,30 @@ int sen15901_init(sen15901_t *dev, const sen15901_params_t *params);
  * @return SEN15901_OK on success
  * @return < 0 on error
  */
-int sen15901_get_wind_direction(const sen15901_t *dev, uint16_t *data);
+int sen15901_get_girouette(const sen15901_t *dev, uint16_t *data);
 
 /**
  * @brief   Read wind ticks
  *
  *
  * @param[in] dev    device to read
- * @param[out] data  amount of interrupts
+ * @param[out] data  mean wind speed since last call
  *
  * @return SEN15901_OK on success
  * @return < 0 on error
  */
-int sen15901_get_wind_ticks(const sen15901_t *dev, uint16_t *data);
+int sen15901_get_anemometre(const sen15901_t *dev, uint16_t *data);
 
 /**
  * @brief   Read water ticks
  *
  * @param[in] dev    device to read
- * @param[out] data  amount of interrupts
+ * @param[out] data  mm of rain since last call
  *
  * @return SEN15901_OK on success
  * @return < 0 on error
  */
- 
-int sen15901_get_water_ticks(const sen15901_t *dev, uint16_t  *data);
-
-
-/**
- * @brief   callback function for interrupts
- *
- * @param[in] arg    pin that was called by interrupt
- *
- */
+int sen15901_get_pluviometre(const sen15901_t *dev, uint16_t  *data);
 
 
 #ifdef __cplusplus
@@ -128,4 +121,3 @@ int sen15901_get_water_ticks(const sen15901_t *dev, uint16_t  *data);
 #endif
 
 #endif /* SEN15901_H */
-/** @} */
